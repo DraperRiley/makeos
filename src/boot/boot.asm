@@ -15,6 +15,9 @@ _entry:
 	; clear interrupts
 	cli
 	
+	; get amt of lower memory
+	call get_lm
+
 	; TODO: enable A20 line
 
 	; set gdt
@@ -31,11 +34,20 @@ _entry:
 	; should not end up here
 	jmp .loop
 
-.loop:
-	;oops
-	cli
-	hlt
-	jmp .loop
+.loop:             ; oops
+	cli        ; clear interrupts
+	hlt        ; halt cpu
+	jmp .loop  ; loop forever
+
+get_lm:                    ; GET LOWER MEMORY (AX = total number of KB)
+	clc                ; clear carry
+	int 0x12           ; bios interrupt (= request low memory size)
+	jc _entry.loop     ; we hit an error :(
+	mov [lm_size], ax  ; store ax contents in lm_size
+	ret                ; return
+
+lm_size:
+	dw 0
 
 GDT:
 set_gdt:
