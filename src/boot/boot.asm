@@ -15,6 +15,9 @@ _entry:
 	; clear interrupts
 	cli
 	
+	; init registers
+	call init_reg;
+
 	; get amt of lower memory
 	call get_lm
 
@@ -38,6 +41,12 @@ _entry:
 	cli        ; clear interrupts
 	hlt        ; halt cpu
 	jmp .loop  ; loop forever
+
+init_reg:
+	xor ax, ax
+	mov es, ax
+	mov ds, ax
+	ret
 
 get_lm:                    ; GET LOWER MEMORY (AX = total number of KB)
 	clc                ; clear carry
