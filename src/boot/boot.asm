@@ -1,57 +1,45 @@
 org 0x7c00
 bits 16
 
-; begin
-	section .text
-	; start at entry
-	global _entry
-	; extern _KernelMain
+start:
+	cli            ; clear interrupts
+	mov ax, 0      ; set accumulator to zero first
+        mov ds, ax
+        mov es, ax
 
-_kernel_addr:
-	dw 0x8c00
+        mov sp, 0x7C00 ; set stack
+        mov ss, ax
+        call main
 
-_entry:
-
-	; clear interrupts
-	cli
+print:
 	
-	; init registers
-	call init_reg;
+	.loop:
+	lodsb
+	or al, al
+	jz .done
 
-	; get amt of lower memory
-	call get_lm
-
-	; TODO: enable A20 line
-
-	; set gdt
-	call set_gdt
-
-	; go protected mode
-	bits 32
-	; TODO: set protected mode
-
-	; enter kernel.c
-        ; call _KernelMain
-	call _kernel_addr
-
-	; should not end up here
+	mov ah, 0x0e
+	mov bh, 0x0
+	int 0x10
 	jmp .loop
 
-.loop:             ; oops
-	cli        ; clear interrupts
-	hlt        ; halt cpu
-	jmp .loop  ; loop forever
+	.done:  
+	pop ax
+	pop si
+	ret
+		
 
-init_reg:
-	xor ax, ax
-	mov es, ax
-	mov ds, ax
+initreg:
+	mov ax, 0
+	mov ds, ax ; data segment
+	mov es, ax ; e segment?
+        mov ss, ax ; stack segment
 	ret
 
 get_lm:                    ; GET LOWER MEMORY (AX = total number of KB)
 	clc                ; clear carry
 	int 0x12           ; bios interrupt (= request low memory size)
-	jc _entry.loop     ; we hit an error :(
+	jc main.halt       ; we hit an error :(
 	mov [lm_size], ax  ; store ax contents in lm_size
 	ret                ; return
 
@@ -60,7 +48,6 @@ lm_size:
 
 GDT:
 set_gdt:
-	; configure gdt
 	xor eax, eax
 	mov ax, ds
 	shl eax, 4
@@ -77,6 +64,28 @@ gdtr:
 	dw 0
 
 GDT_end:
+
+main:
+        call get_lm  ; get lower memory
+        ; TODO: enable A20 line
+        call set_gdt ; set GDT
+
+        mov si, msg  ; push msg
+        call print   ; print
+
+        mov si, msg
+        call print
+
+        jmp .halt    ; shouldnt end up here
+
+.halt:               ; oops
+        cli          ; clear interrupts
+        hlt          ; halt cpu
+        jmp .halt    ; loop forever
+
+
+msg: dw 'First Stage', endl, 0
+endl: db 0x0A
 
 times 510 - ($-$$) db 0
 dw 0xAA55
