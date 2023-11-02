@@ -9,9 +9,5 @@ extern void _KernelMain() {
 void panic() {
 	printf("Unrecoverable Error, panic!\n");
         for(;;)
-		idle();
-}
-
-void idle() {
-	return;	
+		;
 }
