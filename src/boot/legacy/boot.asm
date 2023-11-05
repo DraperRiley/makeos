@@ -1,6 +1,8 @@
 bits 16
 org 0x7C00
 
+%include "headers.asm"
+
 jmp start
 
 GDT:
@@ -37,7 +39,7 @@ print:
 	or al, al
 	jz .done
 
-	mov ah, 0x0e
+	mov ah, 0xE
 	mov bh, 0x0
 	int 0x10
 	jmp .loop
@@ -133,6 +135,9 @@ main:
         mov si, msg
         call print
 
+	mov si, msg2
+	call print
+
 	call real_to_prot ; 32 bits
 	bits 32
 	
@@ -147,7 +152,8 @@ main:
         jmp .halt       ; loop forever
 
 
-msg: db 'First Stage', 0
+msg: db 'First Stage of legacy boot', 0
+msg2: db 'We are here', 0
 
 times 510 - ($-$$) db 0
 dw 0xAA55
