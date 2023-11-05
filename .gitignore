@@ -2,3 +2,4 @@
 *.notes
 *.bin
 toolchain/
+dist/
