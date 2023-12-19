@@ -26,6 +26,7 @@ start:
 	cli            ; clear interrupts
 	mov ax, 0      ; set accumulator to zero first
         mov ds, ax
+	mov ax, 0
         mov es, ax
 
         mov sp, 0x7C00 ; set stack
@@ -33,7 +34,6 @@ start:
         call main
 
 print:
-	
 	.loop:
 	lodsb
 	or al, al
@@ -45,8 +45,25 @@ print:
 	jmp .loop
 
 	.done:  
-	pop ax
-	pop si
+	ret
+
+reset_cursor_total:
+	mov ah, 0x02
+	mov dh, 0
+	mov dl, 0
+	ret
+
+reset_cursor:
+
+	; get cursor position
+	mov ah, 0x03
+	int 0x10
+
+	; reset cursor position
+	mov dl, 0
+	mov ah, 0x02
+	mov bh, 0
+	int 0x10
 	ret
 
 get_lm:                    ; GET LOWER MEMORY (AX = total number of KB)
@@ -127,13 +144,23 @@ real_to_prot:
 	mov cr0, eax
 	ret
 
+reset_screen:
+	mov ah, 0
+	mov al, 0x03
+	int 0x10
+	ret
+
 main:
-        call get_lm     ; get lower memory
-        call enable_a20 ; enable a20 line
-        call set_gdt    ; set GDT
+	call reset_screen
+	call reset_cursor_total
+        ;call get_lm     ; get lower memory
+        ;call enable_a20 ; enable a20 line
+        ;call set_gdt    ; set GDT
 
         mov si, msg
         call print
+
+	call reset_cursor
 
 	mov si, msg2
 	call print
@@ -152,8 +179,8 @@ main:
         jmp .halt       ; loop forever
 
 
-msg: db 'First Stage of legacy boot', 0
-msg2: db 'We are here', 0
+msg: db 0x0a, 'First Stage of legacy boot', 0x0a, 0
+msg2: db 'We are here', 0x0a, 0
 
 times 510 - ($-$$) db 0
 dw 0xAA55
