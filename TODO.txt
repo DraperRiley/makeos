@@ -1,0 +1,4 @@
+TODO: 
+	Setup makefile to create toolchain (cross compiler, bin utils, etc.)
+	Finish floppy disk bootloading with minimal kernel
+	Restructure project, we need separate boot loaders for different methods and architectures

@@ -3,3 +3,4 @@
 *.bin
 toolchain/
 dist/
+build/

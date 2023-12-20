@@ -1,26 +1,7 @@
-bits 16
-org 0x7C00
+[bits 16]
+[org 0x7C00]
 
 %include "headers.asm"
-
-jmp start
-
-GDT:
-	dd 0x00000000 ;Descriptor 0 Null
-	dd 0x00000000
-	dw 0xffff ;Descriptor 1 Code
-	dw 0x0000
-	db 0x00
-	db 10011010b
-	db 11001111b
-	db 0x00
-	dw 0xffff ;Descriptor 2 Data
-	dw 0x0000
-	db 0x00
-   	db 10010010b
-   	db 11001111b
-   	db 0x00
-GDT_end:
 
 start:
 	cli            ; clear interrupts
@@ -33,129 +14,16 @@ start:
         mov ss, ax
         call main
 
-print:
-	.loop:
-	lodsb
-	or al, al
-	jz .done
-
-	mov ah, 0xE
-	mov bh, 0x0
-	int 0x10
-	jmp .loop
-
-	.done:  
-	ret
-
-reset_cursor_total:
-	mov ah, 0x02
-	mov dh, 0
-	mov dl, 0
-	ret
-
-reset_cursor:
-
-	; get cursor position
-	mov ah, 0x03
-	int 0x10
-
-	; reset cursor position
-	mov dl, 0
-	mov ah, 0x02
-	mov bh, 0
-	int 0x10
-	ret
-
-get_lm:                    ; GET LOWER MEMORY (AX = total number of KB)
-	clc                ; clear carry
-	int 0x12           ; bios interrupt (= request low memory size)
-	jc main.halt       ; we hit an error :(
-	mov [lm_size], ax  ; store ax contents in lm_size
-	ret                ; return
-
-lm_size:
-	dw 0
-
-enable_a20:
-	pushf
-	push si
-	push di
-	push ds
-	push es
-	cli
-
-	mov ax, 0x0000
-	mov ds, ax
-	mov si, 0x0500
-
-	not ax
-	mov es, ax
-	mov di, 0x0510
-
-	mov al, [ds:si]
-	mov byte [.BufferBelowMB], al
-	mov al, [es:di]
-	mov byte [.BufferOverMB], al
-
-	mov ah, 1
-	mov byte [ds:si], 0
-	mov byte [es:di], 1
-	mov al, [ds:si]
-	cmp al, [es:di]
-	jne .exit
-	dec ah
-
-	.exit:
-	mov al, [.BufferBelowMB]
-	mov [ds:si], al
-	mov al, [.BufferOverMB]
-	mov [es:di], al
-	shr ax, 8
-	sti
-	pop es
-	pop ds
-	pop di
-	pop si
-	popf
-	ret
-
-	.BufferBelowMB: db 0
-	.BufferOverMB: db 0
-
-set_gdt:
-	xor eax, eax
-	mov ax, ds
-	shl eax, 4
-	add eax, GDT
-	mov [gdtr + 2], eax
-	mov eax, GDT_end
-	sub eax, GDT
-	mov [gdtr], ax
-	lgdt [gdtr]
-	ret
-
-gdtr:
-	dw 0
-	dw 0
-
-real_to_prot:
-	mov eax, cr0
-	or al, 1
-	mov cr0, eax
-	ret
-
-reset_screen:
-	mov ah, 0
-	mov al, 0x03
-	int 0x10
-	ret
+%include "gdt.asm"
+%include "print.asm"
+%include "enablea20.asm"
+%include "getlm.asm"
 
 main:
 	call reset_screen
 	call reset_cursor_total
-        ;call get_lm     ; get lower memory
-        ;call enable_a20 ; enable a20 line
-        ;call set_gdt    ; set GDT
+        call get_lm     ; get lower memory
+        call enable_a20 ; enable a20 line
 
         mov si, msg
         call print
@@ -165,11 +33,7 @@ main:
 	mov si, msg2
 	call print
 
-	call real_to_prot ; 32 bits
-	bits 32
-	
-	; TODO: search disk sectors for stage2
-	; jmp stage2_addr
+	call real_to_prot
 
         jmp .halt       ; shouldnt end up here
 
@@ -178,9 +42,27 @@ main:
         hlt             ; halt cpu
         jmp .halt       ; loop forever
 
+%include "protmode.asm"
 
-msg: db 0x0a, 'First Stage of legacy boot', 0x0a, 0
-msg2: db 'We are here', 0x0a, 0
+[bits 32]
+prot_mode:
+	mov ax, DATA_SEG
+	mov ds, ax
+	mov ss, ax
+	mov es, ax
+	mov fs, ax
+	mov gs, ax
+
+	mov ebp, 0x90000
+	mov esp, ebp
+	
+.halt
+	cli
+	hlt
+	jmp .halt
+
+msg: db 'Booting into kernel', 0x0a, 0
+msg2: db 'Entering protected mode', 0x0a, 0
 
 times 510 - ($-$$) db 0
 dw 0xAA55
