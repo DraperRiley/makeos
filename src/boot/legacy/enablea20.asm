@@ -1,4 +1,3 @@
-
 enable_a20:
         pushf
         push si

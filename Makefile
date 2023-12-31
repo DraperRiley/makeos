@@ -1,3 +1,6 @@
+CC := gcc
+CFLAGS := -ffreestanding -nostdlib
+
 SRC_DIR := src
 BOOT_DIR := $(SRC_DIR)/boot
 KERN_DIR := $(SRC_DIR)/kernel
@@ -13,6 +16,17 @@ FLOPPYIMG := main_floppy.img
 FAT12HEADERS := src/boot/headers/fat12/fat12headers.asm
 HEADER_FILE := headers.asm
 
+# Kernel
+SOURCES := $(wildcard $(KERN_DIR)/*.c)
+OBJS :=  $(SOURCES:.c=*.o)
+INCLUDES := $(wildcard $(KERN_DIR)/*.c)
+KERNEL := $(KERN_DIR)/kernel
+INCFLAGS := -I$(KERN_DIR)
+OUTFILE := $(BUILD_DIR)/kernel
+
+.PHONY: all
+all: always $(OBJS) $(BUILD_DIR)/$(FLOPPYIMG)
+
 qemu-x86_64-floppy : $(FLOPPYIMG)
 	qemu-system-x86_64 \
 	-drive \
@@ -25,6 +39,7 @@ qemu-i386-floppy-debug : clean $(FLOPPYIMG)
 	qemu-system-i386 \
 	-S \
 	-gdb tcp::9000 \
+	-d cpu \
 	-drive \
 	format=raw,\
 	file=$(BUILD_DIR)/$(FLOPPYIMG),\
@@ -38,6 +53,12 @@ qemu-i386-floppy-nodebug : clean $(FLOPPYIMG)
 	file=$(BUILD_DIR)/$(FLOPPYIMG),\
 	if=floppy,\
 	media=disk
+
+
+.PHONY: objs
+objs : $(OBJS)
+$(OBJS) : always
+	$(CC) $(CFLAGS) $(INCFLAGS) $(SOURCES) -o $(BUILD_DIR)/kernel
 
 $(FLOPPYIMG) : $(BUILD_DIR)/$(FLOPPYIMG)
 
