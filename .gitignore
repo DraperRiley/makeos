@@ -4,3 +4,6 @@
 toolchain/
 dist/
 build/
+*.swp
+*.img
+*.iso

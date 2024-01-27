@@ -10,11 +10,15 @@ LEGACY_BOOT_DIR := $(BOOT_DIR)/legacy
 
 BOOTFILE := boot.asm
 BOOTOUT := boot.bin
+FATFS := fat.fs
 
 # Floppy
 FLOPPYIMG := main_floppy.img
 FAT12HEADERS := src/boot/headers/fat12/fat12headers.asm
 HEADER_FILE := headers.asm
+
+# CD ISO
+BOOTISO := cd.iso
 
 # Kernel
 SOURCES := $(wildcard $(KERN_DIR)/*.c)
@@ -23,6 +27,7 @@ INCLUDES := $(wildcard $(KERN_DIR)/*.c)
 KERNEL := $(KERN_DIR)/kernel
 INCFLAGS := -I$(KERN_DIR)
 OUTFILE := $(BUILD_DIR)/kernel
+OSNAME := MyOS
 
 .PHONY: all
 all: always $(OBJS) $(BUILD_DIR)/$(FLOPPYIMG)
@@ -55,6 +60,23 @@ qemu-i386-floppy-nodebug : clean $(FLOPPYIMG)
 	media=disk
 
 
+qemu-fat32 : clean 
+	qemu-system-x86_64 \
+	-drive \
+	format=raw,\
+	file=$(BOOTISO),\
+	if=floppy,\
+	media=cdrom
+
+.PHONY: bootiso
+bootiso : $(BOOTISO)
+$(BOOTISO) : clean always $(BOOTOUT)
+	dd if=/dev/zero of=$(BUILD_DIR)/$(FLOPPYIMG) bs=512 count=2880
+	mformat -i $(BUILD_DIR)/$(FLOPPYIMG) "::"
+	dd if=$(BUILD_DIR)/$(BOOTOUT) of=$(BUILD_DIR)/$(FLOPPYIMG) conv=notrunc
+	cp $(BUILD_DIR)/$(FLOPPYIMG) .
+	mkisofs -o $(BOOTISO) -V $(OSNAME) -b $(FLOPPYIMG) $(BUILD_DIR)/
+
 .PHONY: objs
 objs : $(OBJS)
 $(OBJS) : always
@@ -71,6 +93,8 @@ $(BUILD_DIR)/$(FLOPPYIMG) : $(BOOTOUT)
 bootbin: $(BOOTOUT)
 $(BOOTOUT) : always headers
 	nasm -i $(BUILD_DIR) -I$(LEGACY_BOOT_DIR) -fbin $(LEGACY_BOOT_DIR)/$(BOOTFILE) -o $(BUILD_DIR)/$(BOOTOUT)
+
+
 
 .PHONY: headers
 headers:
