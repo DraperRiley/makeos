@@ -5,6 +5,7 @@ SRC_DIR := src
 BOOT_DIR := $(SRC_DIR)/boot
 KERN_DIR := $(SRC_DIR)/kernel
 BUILD_DIR := build
+DIST := dist
 
 LEGACY_BOOT_DIR := $(BOOT_DIR)/legacy
 
@@ -74,8 +75,9 @@ $(BOOTISO) : clean always $(BOOTOUT)
 	dd if=/dev/zero of=$(BUILD_DIR)/$(FLOPPYIMG) bs=512 count=2880
 	mformat -i $(BUILD_DIR)/$(FLOPPYIMG) "::"
 	dd if=$(BUILD_DIR)/$(BOOTOUT) of=$(BUILD_DIR)/$(FLOPPYIMG) conv=notrunc
-	cp $(BUILD_DIR)/$(FLOPPYIMG) .
-	mkisofs -o $(BOOTISO) -V $(OSNAME) -b $(FLOPPYIMG) $(BUILD_DIR)/
+	cp $(BUILD_DIR)/$(FLOPPYIMG) $(DIST)
+	cp $(BUILD_DIR)/$(BOOTOUT) $(DIST)
+	mkisofs -o $(BOOTISO) -V $(OSNAME) -b $(FLOPPYIMG) $(DIST)
 
 .PHONY: objs
 objs : $(OBJS)
@@ -103,7 +105,14 @@ headers:
 .PHONY: always
 always:
 	mkdir -p $(BUILD_DIR)
+	mkdir -p $(DIST)
 
 .PHONY: clean
 clean:
 	rm -rf $(BUILD_DIR)
+	rm -rf $(DIST)
+
+.PHONY: clobber
+clobber : clean
+	rm *.iso
+	rm *.img
