@@ -1,44 +1,29 @@
-/* Kernel linker for x86_64
- *
- */
+ENTRY(_start)
 
-ENTRY(_entry)
-OUTPUT_FORMAT(binary)
-OUTPUT(kernel.bin)
-
-phys = 0x7C00
-
-SECTIONS 
+SECTIONS
 {
+	. = 2M;
 
-	.text phys : AT(phys) 
+	.text BLOCK(4K) : ALIGN(4K)
 	{
-		code = .;
+		*(.multiboot)
 		*(.text)
+	}
+
+	.rodata BLOCK(4K) : ALIGN(4K)
+	{
 		*(.rodata)
-		. = ALIGN(4096);
 	}
 
-	.data : AT(phys + (data - code))
+	.data BLOCK(4K) : ALIGN(4K)
 	{
-		data = .;
 		*(.data)
-		. = ALIGN(4096);
 	}
 
-	.bss : AT(phys + (bss - code))
+	.bss BLOCK(4K) : ALIGN(4K)
 	{
-		bss = .;
+		*(COMMON)
 		*(.bss)
-		. = ALIGN(4096);
 	}
 
-	end = .;
-
-	/DISCARD/ :
-	{
-		*(.comment)
-		*(.eh_frame)
-		*(.note.gnu.build-id)
-	}
 }

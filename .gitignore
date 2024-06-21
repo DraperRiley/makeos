@@ -4,6 +4,24 @@
 toolchain/
 dist/
 build/
+.vscode/
 *.swp
 *.img
 *.iso
+*.efi
+*.so
+*.EFI
+*.a
+
+# Cmake
+CMakeCache.txt
+CMakeFiles/
+MakeOS
+Makefile.old
+cmake_install.cmake
+isodir/*
+Makefile
+
+# Other
+TODO.txt
+makefat
