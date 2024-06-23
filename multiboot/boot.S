@@ -20,27 +20,41 @@ stack_bottom:
 stack_top:
 
 .section .data
-msg: .asciz "Initializing system"
+msg: .asciz "Initializing system" 
+idt_msg: .asciz "Setting up IDT"
 
 .section .text
 
 .global _start
 .type _start, @function
 
+.globl _print_string_pm
+.type _print_string_pm, @function
+
+#.globl terminal_initialize
+#.type terminal_initialize, @function
 
 _start:
 
+	cli
+	mov $0, %eax
+	mov $0, %ebx
+	mov $0, %ecx
+	mov $0, %edx
+
 	# Print to screen
-	mov msg, %ebx
+	mov $msg, %ebx
 	call _print_string_pm
 
 	# Setup IDT
-	
+	mov $idt_msg, %ebx
+	call _print_string_pm
+
 	# Setup Paging
 
-.code64
+#.code64
 	mov $stack_top, %esp
-	call kernel_main
+	# call kernel_main
 
 	cli
 1:

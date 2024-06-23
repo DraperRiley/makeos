@@ -4,14 +4,14 @@ project(MakeOS VERSION 1.0
 	LANGUAGES C ASM
 )
 
-set(CMAKE_C_COMPILER "$ENV{HOME}/makeos/toolchain/x86_64-elf/bin/x86_64-elf-gcc")
-set(CMAKE_ASM_COMPILER "$ENV{HOME}/makeos/toolchain/x86_64-elf/bin/x86_64-elf-as")
-set(CMAKE_C_COMPILER_LINKER "$ENV{HOME}/makeos/toolchain/x86_64-elf/bin/x86_64-elf-ld")
+set(CMAKE_C_COMPILER "$ENV{HOME}/makeos/toolchain/i686-elf/bin/i686-elf-gcc")
+set(CMAKE_ASM_COMPILER "$ENV{HOME}/makeos/toolchain/i686-elf/bin/i686-elf-as")
+set(CMAKE_C_COMPILER_LINKER "$ENV{HOME}/makeos/toolchain/i686-elf/bin/i686-elf-ld")
 
 # Multiboot
 add_library(multiboot STATIC 
 	multiboot/boot.S
-	multiboot/32bit-print.S
+	multiboot/print.S
 )
 target_include_directories(multiboot PUBLIC include)
 
