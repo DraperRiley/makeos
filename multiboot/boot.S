@@ -21,7 +21,9 @@ stack_top:
 
 .section .data
 msg: .asciz "Initializing system" 
-idt_msg: .asciz "Setting up IDT"
+pg_msg: .asciz "Setting up paging"
+gdt_msg: .asciz "Setting up GDT"
+long_msg: .asciz "Jumping to long mode"
 
 .section .text
 
@@ -30,9 +32,6 @@ idt_msg: .asciz "Setting up IDT"
 
 .globl _print_string_pm
 .type _print_string_pm, @function
-
-#.globl terminal_initialize
-#.type terminal_initialize, @function
 
 _start:
 
@@ -46,20 +45,45 @@ _start:
 	mov $msg, %ebx
 	call _print_string_pm
 
-	# Setup IDT
-	mov $idt_msg, %ebx
+	# Setup Paging
+	mov $pg_msg, %ebx
+	call _print_string_pm
+	call init_paging
+
+	# LGDT 64 BIT
+	mov $gdt_msg, %ebx
+	call _print_string_pm
+	call load_gdt
+
+	mov $long_msg, %ebx
 	call _print_string_pm
 
-	# Setup Paging
+	# where are we going
+	ljmpl $.CODE, $_enter_long_mode
 
-#.code64
-	mov $stack_top, %esp
-	# call kernel_main
+.code64
+
+_enter_long_mode:
+
+	cli
+	mov $.DATA, %ax
+	mov %ax, %ds
+	mov %ax, %es
+	mov %ax, %fs
+	mov %ax, %gs
+	mov %ax, %ss
+
+	mov $0xB8000, %edi
+	mov $0x1F201F201F201F20, %rax
+	mov $500, %rcx
+	rep stosq
+
+	mov $stack_top, %rsp
+	# jmp kernel_main
 
 	cli
 1:
 	hlt
 	jmp 1b
-
 
 .size _start, . - _start

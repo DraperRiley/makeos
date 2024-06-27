@@ -53,7 +53,7 @@ size_t terminal_column;
 uint8_t terminal_color;
 uint16_t* terminal_buffer;
 
-extern void terminal_initialize(void) 
+void terminal_initialize(void) 
 {
 	terminal_row = 0;
 	terminal_column = 0;
@@ -108,10 +108,10 @@ void panic(void)
 void kernel_main(void) 
 {
 	/* Initialize terminal interface */
-	terminal_initialize();
+	//terminal_initialize();
 
 	/* Newline support is left as an exercise. */
-	terminal_writestring("Hello, kernel World!\n");
+	//terminal_writestring("Hello, kernel World!\n");
 
 	// panic
 	panic();

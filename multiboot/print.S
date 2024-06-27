@@ -42,10 +42,10 @@ print_string_pm_loop:
 
 print_string_pm_done:
 
-		mov $80, %edx
+		mov vga_width, %edx
 		sub %ecx, %edx
+		shl $1, %edx
 		add %edx, terminal_index
-		mov $0, %edx
 
     popa
     ret
