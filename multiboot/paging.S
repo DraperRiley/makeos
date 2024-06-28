@@ -1,8 +1,8 @@
 .code32
 
-.section .data
+# .section .data
 
-.section .text
+.section .multiboot
 
 .globl init_paging
 
@@ -36,16 +36,16 @@ init_paging:
 	loop .setEntry
 
 	mov %cr4, %eax
-	or %eax, 1 << 5
+	or $(1<<5), %eax
 	mov %eax, %cr4
 
 	mov $0xC0000080, %ecx
   rdmsr
-  or %eax, 1 << 8
+  or $(1<<8), %eax
   wrmsr
 
   mov %cr0, %eax
-  or %eax, 1 << 31
+  or $(1<<31), %eax
   mov %eax, %cr0
 
 	popa

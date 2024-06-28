@@ -13,19 +13,19 @@
 .long FLAGS
 .long CHECKSUM
 
-.section .bss
+#.section .bss
 .align 16
 stack_bottom:
 .skip 16384
 stack_top:
 
-.section .data
+#.section .data
 msg: .asciz "Initializing system" 
 pg_msg: .asciz "Setting up paging"
 gdt_msg: .asciz "Setting up GDT"
 long_msg: .asciz "Jumping to long mode"
 
-.section .text
+#.section .text
 
 .global _start
 .type _start, @function
@@ -46,9 +46,12 @@ _start:
 	call _print_string_pm
 
 	# Setup Paging
+	cli
 	mov $pg_msg, %ebx
 	call _print_string_pm
 	call init_paging
+
+	hlt
 
 	# LGDT 64 BIT
 	mov $gdt_msg, %ebx
@@ -61,22 +64,26 @@ _start:
 	# where are we going
 	ljmpl $.CODE, $_enter_long_mode
 
-.code64
 
+.code64
 _enter_long_mode:
 
 	cli
-	mov $.DATA, %ax
+	mov .DATA, %ax
 	mov %ax, %ds
 	mov %ax, %es
 	mov %ax, %fs
 	mov %ax, %gs
 	mov %ax, %ss
 
-	mov $0xB8000, %edi
-	mov $0x1F201F201F201F20, %rax
-	mov $500, %rcx
-	rep stosq
+	#mov $0xB8000, %edi
+	#mov $0x1F201F201F201F20, %rax
+	#mov $500, %rcx
+	#rep stosq
+
+	mov $0x00B8000, %edi
+	mov $0x1F6C1F6C1F651F48, %rax
+	mov %rax, (%edi)
 
 	mov $stack_top, %rsp
 	# jmp kernel_main

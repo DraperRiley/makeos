@@ -12,7 +12,8 @@
 .set SZ_32, 1 << 6
 .set LONG_MODE, 1 << 5
 
-.section .text
+# .section .text
+.section .multiboot
 
 # FROM NASM
 # dq = .quad (64 bit)
