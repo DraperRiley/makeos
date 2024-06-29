@@ -1,14 +1,13 @@
 .code32
 
-# .section .data
-
-.section .multiboot
-
+.section .text
 .globl init_paging
 
 init_paging:
 
 	pusha
+
+	# Clear tables
 	mov $0x1000, %edi
 	mov %edi, %cr3
 	xor %eax, %eax
@@ -16,6 +15,7 @@ init_paging:
 	rep stosl
 	mov %cr3, %edi
 	
+	# Set tables
 	movw $0x2003, (%edi)
 	add $0x1000, %edi
 
@@ -25,12 +25,13 @@ init_paging:
 	movw $0x4003, (%edi)
 	add $0x1000, %edi
 
+	# Identity map first 2MB
 	mov $0x00000003, %ebx
 	mov $512, %ecx
 
 .setEntry:
 
-	mov %ebx, (%edi)
+	movl %ebx, (%edi)
 	add $0x1000, %ebx
 	add $8, %edi
 	loop .setEntry
