@@ -58,13 +58,15 @@ void terminal_initialize(void)
 	terminal_row = 0;
 	terminal_column = 0;
 	terminal_color = vga_entry_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
-	terminal_buffer = (uint16_t*) 0xB8000;
+	
+	terminal_buffer = (uint16_t*) 0xC00B8000;
 	for (size_t y = 0; y < VGA_HEIGHT; y++) {
 		for (size_t x = 0; x < VGA_WIDTH; x++) {
 			const size_t index = y * VGA_WIDTH + x;
-			terminal_buffer[index] = vga_entry(' ', terminal_color);
+			// terminal_buffer[index] = vga_entry(' ', terminal_color);
 		}
 	}
+
 }
 
 void terminal_setcolor(uint8_t color) 
@@ -108,10 +110,10 @@ void panic(void)
 void kernel_main(void) 
 {
 	/* Initialize terminal interface */
-	//terminal_initialize();
+	terminal_initialize();
 
 	/* Newline support is left as an exercise. */
-	//terminal_writestring("Hello, kernel World!\n");
+	terminal_writestring("Hello, kernel World!\n");
 
 	// panic
 	panic();

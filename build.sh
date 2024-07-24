@@ -1,8 +1,8 @@
 #!/bin/bash
 
-export CC=gcc
-export LD=ld
-export CXX=g++
+# export CC=gcc
+# export LD=ld
+# export CXX=g++
 cmake --build . --verbose
 
 if [ -f MakeOS ]; then

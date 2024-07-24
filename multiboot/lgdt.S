@@ -1,7 +1,7 @@
 # Load GDT with 64-bit flags
 .code32
 
-.section .data
+.section .multiboot.data, "aw"
 
 .set PRESENT, 1 << 7
 .set NOT_SYS, 1 << 4
@@ -14,7 +14,7 @@
 .set SZ_32, 1 << 6
 .set LONG_MODE, 1 << 5
 
-.section .text
+.section .multiboot.text, "a"
 
 # FROM NASM
 # dq = .quad (64 bit)

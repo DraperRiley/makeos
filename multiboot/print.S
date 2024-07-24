@@ -1,6 +1,6 @@
 .code32 # using 32-bit protected mode
 
-.section .data
+.section .multiboot.data, "aw"
 
 vmem: .long 0xB8000
 grey: .byte 0x07 # the color byte for each character
@@ -13,7 +13,7 @@ LIGHT_GREY: .byte 7
 BLACK: .byte 0
 TERM_COLOR: .byte 0
 
-.section .text
+.section .multiboot.text, "a"
 
 .globl _print_string_pm
 .type _print_string_pm, @function

@@ -7,29 +7,33 @@
 .set MAGIC, 0x1BADB002
 .set CHECKSUM, -(MAGIC + FLAGS)
 
-.section .multiboot
+.section .multiboot.header, "aw"
 .align 4
 .long MAGIC
 .long FLAGS
 .long CHECKSUM
 
-.section .bss
+.section .multiboot.bss, "aw", @nobits
 .align 16
 stack_bottom:
 .skip 16384
 stack_top:
 
-.section .data
+.section .multiboot.data
 msg: .asciz "Initializing system" 
 pg_msg: .asciz "Setting up paging"
 gdt_msg: .asciz "Setting up GDT"
 long_msg: .asciz "Jumping to long mode"
 
+.section .multiboot.text, "a"
 .global _start
 .type _start, @function
 
 .globl _print_string_pm
 .type _print_string_pm, @function
+
+#.globl kernel_main
+#.type kernel_main, @function
 
 _start:
 
@@ -48,7 +52,7 @@ _start:
 	mov $pg_msg, %ebx
 	call _print_string_pm
 	call init_paging
-
+	
 	# LGDT 64 BIT
 	mov $gdt_msg, %ebx
 	call _print_string_pm
@@ -82,7 +86,12 @@ _enter_long_mode:
 	mov %rax, (%edi)
 
 	mov $stack_top, %rsp
-	jmp kernel_main
+	movabsq $kernel_main, %rax
+	jmp *%rax
+
+	mov $0x00B8000, %edi
+  mov $0x1F6C1F6C1F651F48, %rax
+  mov %rax, (%edi)
 
 	cli
 1:

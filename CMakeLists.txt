@@ -36,7 +36,7 @@ target_compile_options(MakeOS
 	PUBLIC -Wextra
 )
 target_link_options(MakeOS
-	PUBLIC -T linker.ld
+	PUBLIC -T linkerhh.ld
 	PUBLIC -ffreestanding 
 	PUBLIC -O2 
 	PUBLIC -nostdlib
