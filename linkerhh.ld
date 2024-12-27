@@ -56,5 +56,5 @@ SECTIONS
 		*(.bootstrap_stack)
 	}
 
-	_kernel_end = .;
+	PROVIDE(kernel_end = .);
 }

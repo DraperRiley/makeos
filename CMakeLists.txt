@@ -21,16 +21,29 @@ add_library(multiboot STATIC
 )
 target_include_directories(multiboot PUBLIC include)
 
+add_library(std STATIC
+	lib/stdio.c
+)
+
+target_compile_options(std PRIVATE
+	PRIVATE -std=gnu99
+	PRIVATE -ffreestanding
+	PRIVATE -nostdlib
+)
+
+
+target_include_directories(std PUBLIC include)
+
 # Main
 add_executable(MakeOS
 		kern/main.c
 )
 
-target_link_libraries(MakeOS PUBLIC multiboot)
+target_link_libraries(MakeOS PUBLIC multiboot std)
 target_compile_options(MakeOS
 	PUBLIC -std=gnu99 
 	PUBLIC -ffreestanding
-	PUBLIC -nostdlib 
+	PUBLIC -nostdlib
 	PUBLIC -O2 
 	PUBLIC -Wall 
 	PUBLIC -Wextra
