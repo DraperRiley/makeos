@@ -2,13 +2,12 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
+#include "stdlib.h"
 
 /* Check if the compiler thinks you are targeting the wrong operating system. */
 #if defined(__linux__)
 #error "You are not using a cross-compiler, you will most certainly run into trouble"
 #endif
-
-#define VGABUF 0xb8000
 
 void panic(void)
 {
@@ -20,10 +19,10 @@ void panic(void)
 void kernel_main(void) 
 {
 	/* Initialize terminal interface */
+	consoleinit(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
 	terminit((uint32_t *)VGABUF);
-	printf("Hello, kernel World!\n");
-	printf("Initializing...\n");
-	printf("We are here\n");
+	printf("Console initialized\n");
+	printf("Terminal initialized\n");
 
 	// panic
 	panic();

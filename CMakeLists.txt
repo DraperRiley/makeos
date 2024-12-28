@@ -22,6 +22,7 @@ add_library(multiboot STATIC
 target_include_directories(multiboot PUBLIC include)
 
 add_library(std STATIC
+	lib/stdlib.c
 	lib/stdio.c
 )
 
