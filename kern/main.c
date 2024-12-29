@@ -1,20 +1,17 @@
 #include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <stdio.h>
-#include "stdlib.h"
-
 /* Check if the compiler thinks you are targeting the wrong operating system. */
 #if defined(__linux__)
 #error "You are not using a cross-compiler, you will most certainly run into trouble"
 #endif
 
-void panic(void)
-{
-	printf("Kernel has panicked");
-	for(;;)
-		;
-}
+#include <stddef.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "os.h"
+#include "spinlock.h"
+#include "idt.h"
 
 void kernel_main(void) 
 {
@@ -23,7 +20,19 @@ void kernel_main(void)
 	terminit((uint32_t *)VGABUF);
 	printf("Console initialized\n");
 	printf("Terminal initialized\n");
+	printf("Kernel end addr: %d\n", 0xAABBCCDDEEFF);
+	//idtinit((uint32_t *)((int32_t)kernel_end + 1));
+
+	// init mem
+	
 
 	// panic
-	panic();
+	panic("Attempted to exit kernel main");
+}
+
+void panic(char *e)
+{
+	printf("Kernel has panicked %s", e);
+	for(;;)
+		;
 }

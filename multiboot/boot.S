@@ -68,7 +68,6 @@ _start:
 .code64
 _enter_long_mode:
 
-	cli
 	mov $.DATA, %ax
 	mov %ax, %ds
 	mov %ax, %es

@@ -1,3 +1,3 @@
 #include <stdint.h>
 
-void itoa(int value, char *buf, int base);
+void itoa(uint64_t value, char *buf, int base);

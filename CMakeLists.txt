@@ -32,12 +32,12 @@ target_compile_options(std PRIVATE
 	PRIVATE -nostdlib
 )
 
-
 target_include_directories(std PUBLIC include)
 
 # Main
 add_executable(MakeOS
 		kern/main.c
+		kern/idt.c
 )
 
 target_link_libraries(MakeOS PUBLIC multiboot std)
@@ -49,6 +49,7 @@ target_compile_options(MakeOS
 	PUBLIC -Wall 
 	PUBLIC -Wextra
 )
+
 target_link_options(MakeOS
 	PUBLIC -T linkerhh.ld
 	PUBLIC -ffreestanding 

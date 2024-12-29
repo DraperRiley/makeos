@@ -87,13 +87,17 @@ void printf(const char* fmt, ...)
 			switch (fmt[++i])
 			{
 				case 'd':
-					itoa(va_arg(vl, int), BUF, 10);
+					itoa(va_arg(vl, uint64_t), BUF, 10);
 					printf(BUF);
 					break;
 
 				case 'x':
-					itoa(va_arg(vl, int), BUF, 16);
+					itoa(va_arg(vl, uint64_t), BUF, 16);
 					printf(BUF);
+					break;
+
+				case 's':
+					printf(va_arg(vl, char *));
 					break;
 			}
 		}

@@ -13,7 +13,7 @@ static void _revstr(char *buf, int st, int end)
 }
 
 // convert integer to string and fill in place buffer
-void itoa(int value, char *buf, int base)
+void itoa(uint64_t value, char *buf, int base)
 {
 	// string start and end
 	uint16_t st, end = 0;
