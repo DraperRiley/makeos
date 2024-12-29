@@ -92,7 +92,7 @@ void printf(const char* fmt, ...)
 					break;
 
 				case 'x':
-					itoa(va_arg(vl, uint64_t), BUF, 16);
+					xtoa(va_arg(vl, uint64_t), BUF);
 					printf(BUF);
 					break;
 

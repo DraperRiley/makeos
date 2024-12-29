@@ -20,7 +20,7 @@ void kernel_main(void)
 	terminit((uint32_t *)VGABUF);
 	printf("Console initialized\n");
 	printf("Terminal initialized\n");
-	printf("Kernel end addr: %d\n", 0xAABBCCDDEEFF);
+	printf("Kernel end addr: %x\n", kernel_end);
 	//idtinit((uint32_t *)((int32_t)kernel_end + 1));
 
 	// init mem
