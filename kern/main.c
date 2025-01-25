@@ -20,11 +20,14 @@ void kernel_main(void)
 	terminit((uint32_t *)VGABUF);
 	printf("Console initialized\n");
 	printf("Terminal initialized\n");
-	printf("Kernel end addr: %x\n", kernel_end);
-	//idtinit((uint32_t *)((int32_t)kernel_end + 1));
 
-	// init mem
-	
+	asm volatile("sti");
+
+	for(;;)
+		;
+
+	// init idt
+	idtinit();
 
 	// panic
 	panic("Attempted to exit kernel main");
@@ -32,7 +35,7 @@ void kernel_main(void)
 
 void panic(char *e)
 {
-	printf("Kernel has panicked %s", e);
+	printf("Kernel has panicked: %s\n", e);
 	for(;;)
 		;
 }

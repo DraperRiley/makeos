@@ -25,6 +25,7 @@
 .globl load_gdt
 .globl .CODE
 .globl .DATA
+.globl GDT
 
 GDT:
 	# NULL

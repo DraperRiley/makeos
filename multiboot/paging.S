@@ -36,17 +36,6 @@ init_paging:
 	add $8, %edi
 	loop .setEntry
 
-	# Identity map HH kernel
-
-	# mov $0xC0100000, %ebx
-	# mov $512, %ecx
-
-	# Get top level pt
-	#xor %ebx, %ebx
-	#mov %cr3, %edi
-	#mov (%edi), %ebx
-	#mov %ebx, %edi	
-
 	mov $0x2018, %edi
 	movw $0x3003, (%edi)
 
@@ -54,11 +43,6 @@ init_paging:
 
 .MapHH:
 	
-	#movl %ebx, (%edi)
-	#add $0x1000, %ebx
-	#add $8, %edi
-	#loop .MapHH
-
 	mov %cr4, %eax
 	or $(1<<5), %eax
 	mov %eax, %cr4

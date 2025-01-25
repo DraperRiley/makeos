@@ -88,13 +88,10 @@ _enter_long_mode:
 	movabsq $kernel_main, %rax
 	jmp *%rax
 
-	mov $0x00B8000, %edi
-  mov $0x1F6C1F6C1F651F48, %rax
-  mov %rax, (%edi)
-
 	cli
 1:
 	hlt
 	jmp 1b
+
 
 .size _start, . - _start

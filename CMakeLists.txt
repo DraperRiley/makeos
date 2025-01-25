@@ -48,6 +48,7 @@ target_compile_options(MakeOS
 	PUBLIC -O2 
 	PUBLIC -Wall 
 	PUBLIC -Wextra
+	PUBLIC -mcmodel=large
 )
 
 target_link_options(MakeOS

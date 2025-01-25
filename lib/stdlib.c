@@ -1,5 +1,10 @@
 #include <stdlib.h>
 
+#define HEX30 0x30
+#define HEX37 0x37
+
+char _basehandle(uint64_t value, uint8_t base);
+
 // reverse string in place
 static void _revstr(char *buf, int st, int end)
 {
@@ -27,7 +32,7 @@ void itoa(uint64_t value, char *buf, int base)
 	// break down the integer
 	while (1)
 	{
-		buf[end++] = (char)((value % base) + 0x30);
+		buf[end++] = _basehandle(value, base);
 		value /= base;
 		if (!value)
 			break;
@@ -37,31 +42,21 @@ void itoa(uint64_t value, char *buf, int base)
 	_revstr(buf, st, end);
 }
 
-void xtoa(uint64_t value, char *buf)
+char _basehandle(uint64_t value, uint8_t base)
 {
-
-	uint8_t base = 16;
-	// string start and end
-	uint16_t st, end = 0;
-	if (value < 0)
+	uint64_t tmp = value % base;
+	switch (base)
 	{
-		buf[st++] = '-';
-		end++;
-		value = ~(value - 1); // reverse two's complement
-	}	
-
-	// break down the integer
-	while (1)
-	{
-		uint64_t tmp = value % base;
-		//buf[end++] = (char)((value % base) + 0x37);
-		buf[end++] = (char)(tmp >= 10 ? tmp + 0x37 : tmp + 0x30);
-		value /= base;
-		if (!value)
+		case 16:
+			if (tmp >= 10)
+				tmp += HEX37;
+			else
+				tmp += HEX30;
 			break;
-	}
 
-	buf[end--] = '\0';
-	_revstr(buf, st, end);
+		default:
+			tmp += HEX30;
+	}
+	return (char) tmp;
 }
 
