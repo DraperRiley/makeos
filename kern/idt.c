@@ -2,61 +2,60 @@
 
 #include "idt.h"
 
-#define IDTSIZE 256
+#define IDTSIZE 32
 
-void _lidt(void);
-void _iretq(void);
-void _ldpgfault(void);
-void _pagefaulthandler(void);
+// Function prototyping
+void lidt(void);
+void general_handler(void);
+void ld_descriptor(uint8_t, void*);
+void ld_table(void);
 
-// static idtentry_t *idt_table;
+// Global vars
 __attribute__((aligned(0x10)))
 static idtentry_t idt_table[IDTSIZE];
 static IDTRecord idtr;
+extern void *isr_stub_table[];
 
 void idtinit(void)
 {
-	// lets put this after our kernel
-	// so at kernel_end rounded up to the nearest page
-	// then increment kernel_end by a page
-	// load with page fault handler
-
-	_ldpgfault();
-	_lidt();
-	
+	ld_table();
+	lidt();
 }
 
-void _lidt(void)
+void lidt(void)
+{
+	asm volatile ("lidt %0" :: "m"(idtr));
+	asm volatile ("sti");
+}
+
+void ld_table(void)
 {
 	idtr.offset = (uint64_t) &idt_table[0];
 	idtr.size = (uint16_t) IDTSIZE - 1;
 
-	asm volatile ("lidt %0" : : "m"(idtr));
-	asm volatile ("sti");
+	for(size_t i = 0; i < IDTSIZE; ++i)
+	{
+		ld_descriptor(i, isr_stub_table[i]);
+	}
+
 }
 
-void _iretq(void)
+void ld_descriptor(uint8_t dnum, void *isr)
 {
-	asm ("iretq");
-}
-
-void _ldpgfault(void)
-{
-	idtentry_t *idte = &idt_table[0xE];
-	idte->offset_1 = (uint64_t) _pagefaulthandler & 0xFFFF;
-	idte->selector = 0x08; // 0x00
+	idtentry_t *idte = &idt_table[dnum];
+	idte->offset_1 = (uint64_t) isr & 0xFFFF;
+	idte->selector = 0x08;
 	idte->ist = 0;
 	idte->type_attributes = 0x8E;
-	idte->offset_2 = ((uint64_t) _pagefaulthandler >> 16) & 0xFFFF;
-	idte->offset_3 = ((uint64_t) _pagefaulthandler >> 32) & 0xFFFFFFFF;
+	idte->offset_2 = ((uint64_t) isr >> 16) & 0xFFFF;
+	idte->offset_3 = ((uint64_t) isr >> 32) & 0xFFFFFFFF;
 	idte->zero = 0;
 }
 
 __attribute__((noreturn))
-void _pagefaulthandler(void)
+void general_handler(void)
 {
-	printf("HIT PAGE FAULT!!\n");
+	printf("Fault Encountered\n");
 	asm volatile ("cli; hlt");
-	_iretq();
 }
 

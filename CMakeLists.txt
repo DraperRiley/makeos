@@ -38,17 +38,23 @@ target_include_directories(std PUBLIC include)
 add_executable(MakeOS
 		kern/main.c
 		kern/idt.c
+		kern/idt.S
 )
 
 target_link_libraries(MakeOS PUBLIC multiboot std)
 target_compile_options(MakeOS
-	PUBLIC -std=gnu99 
-	PUBLIC -ffreestanding
-	PUBLIC -nostdlib
-	PUBLIC -O2 
-	PUBLIC -Wall 
-	PUBLIC -Wextra
-	PUBLIC -mcmodel=large
+	PUBLIC $<$<COMPILE_LANGUAGE:C>:
+		-std=gnu99 
+		-ffreestanding
+		-nostdlib
+		-O2
+		-Wall
+		-Wextra
+		-mcmodel=large
+	>
+	PUBLIC $<$<COMPILE_LANGUAGE:ASM>:
+		-am
+	>
 )
 
 target_link_options(MakeOS

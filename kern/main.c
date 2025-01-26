@@ -21,13 +21,11 @@ void kernel_main(void)
 	printf("Console initialized\n");
 	printf("Terminal initialized\n");
 
-	asm volatile("sti");
+	// init idt
+	idtinit();
 
 	for(;;)
 		;
-
-	// init idt
-	idtinit();
 
 	// panic
 	panic("Attempted to exit kernel main");
