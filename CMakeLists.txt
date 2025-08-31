@@ -51,6 +51,10 @@ target_compile_options(MakeOS
 		-Wall
 		-Wextra
 		-mcmodel=large
+		-mno-red-zone
+		-mno-mmx
+		-mno-sse
+		-mno-sse2
 	>
 	PUBLIC $<$<COMPILE_LANGUAGE:ASM>:
 		-am

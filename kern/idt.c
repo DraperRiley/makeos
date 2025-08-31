@@ -31,7 +31,7 @@ void lidt(void)
 void ld_table(void)
 {
 	idtr.offset = (uint64_t) &idt_table[0];
-	idtr.size = (uint16_t) IDTSIZE - 1;
+	idtr.size = (uint16_t) (sizeof(idtentry_t) * IDTSIZE - 1);
 
 	for(size_t i = 0; i < IDTSIZE; ++i)
 	{
@@ -57,5 +57,7 @@ void general_handler(void)
 {
 	printf("Fault Encountered\n");
 	asm volatile ("cli; hlt");
+	for(;;)
+		;
 }
 

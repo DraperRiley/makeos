@@ -23,9 +23,9 @@ void kernel_main(void)
 
 	// init idt
 	idtinit();
+	printf("IDT loaded\n");
 
-	for(;;)
-		;
+	((void (*)(void))0xC1000000)();
 
 	// panic
 	panic("Attempted to exit kernel main");
@@ -34,6 +34,5 @@ void kernel_main(void)
 void panic(char *e)
 {
 	printf("Kernel has panicked: %s\n", e);
-	for(;;)
-		;
+	asm("cli; hlt");
 }
